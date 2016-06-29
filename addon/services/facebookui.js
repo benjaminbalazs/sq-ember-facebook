@@ -10,13 +10,15 @@ export default Ember.Service.extend({
 
         if ( config.FACEBOOK ) {
             if ( config.FACEBOOK.appId ) {
-                if ( this.exist() ) {
-                    window.FB.init({
-                        appId: config.FACEBOOK.appId,
-                        xfbml: true,
-                        version: 'v2.5'
-                    });
-                }
+                window.fbAsyncInit = function() {
+                    if ( config.FACEBOOK.appId ) {
+                        window.FB.init({
+                            appId: config.FACEBOOK.appId,
+                            xfbml: true,
+                                version: 'v2.5'
+                        });
+                    }
+                };
             }
         }
 
@@ -24,15 +26,15 @@ export default Ember.Service.extend({
 
     // FEED
 
-    feed(caption) {
+    share(quote, domain) {
         var self = this;
         return new Ember.RSVP.Promise(function(resolve, reject) {
             if ( self.exist() ) {
 
                 window.FB.ui({
-                  method: 'feed',
-                  link: 'https://developers.facebook.com/docs/',
-                  caption: caption,
+                  method: 'share',
+                  href: domain,
+                  quote: quote,
                 }, function(response) {
                     if ( response ) {
                         resolve();
