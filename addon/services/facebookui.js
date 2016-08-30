@@ -17,6 +17,7 @@ export default Ember.Service.extend({
                             xfbml: true,
                                 version: 'v2.5'
                         });
+                        console.log('init');
                     }
                 };
             }
