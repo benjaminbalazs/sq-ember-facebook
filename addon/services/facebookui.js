@@ -2,9 +2,16 @@ import Ember from 'ember';
 
 export default Ember.Service.extend({
 
+    status: null,
+    authenticated: null,
+
+    // INIT --------------------------------------------------------------------
+
     init() {
 
         this._super();
+
+        var self = this;
 
         var config = Ember.getOwner(this)._lookupFactory('config:environment');
 
@@ -12,11 +19,26 @@ export default Ember.Service.extend({
             if ( config.FACEBOOK.appId ) {
                 window.fbAsyncInit = function() {
                     if ( config.FACEBOOK.appId ) {
+
                         window.FB.init({
                             appId: config.FACEBOOK.appId,
                             xfbml: true,
                                 version: 'v2.5'
                         });
+
+                        window.FB.getLoginStatus(function(response) {
+
+                            self.set('status', response.status);
+
+                            if ( response.status === 'connected' ) {
+                                self.set('authenticated', true);
+                                self.set('password', response.authResponse.userID);
+                            } else {
+                                self.set('authenticated', false);
+                            }
+
+                        });
+
                     }
                 };
             }
@@ -24,7 +46,53 @@ export default Ember.Service.extend({
 
     },
 
-    // FEED
+    // LOGIN -------------------------------------------------------------------
+
+    login() {
+
+        var self = this;
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+
+            window.FB.login(function(response) {
+
+                if ( response.authResponse ) {
+
+                    self.set('password', response.authResponse.userID);
+                    resolve(response);
+
+                }
+                //} else if ( response.status === 'unkown' ) {
+
+                //} else {
+                //    reject(response);
+                //}
+
+            }, { scope: 'email,user_website,user_about_me,public_profile' });
+
+        });
+
+    },
+
+    // ME ----------------------------------------------------------------------
+
+    me() {
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+
+            window.FB.api('/me', {fields: 'last_name,first_name,email,website,bio'}, function(response) {
+                if ( !response || response.error ) {
+                    reject(response);
+                } else {
+                    resolve(response);
+                }
+           });
+
+        });
+
+    },
+
+    // FEED --------------------------------------------------------------------
 
     share(quote, domain) {
         var self = this;
@@ -48,6 +116,8 @@ export default Ember.Service.extend({
             }
         });
     },
+
+    // -------------------------------------------------------------------------
 
     exist() {
         return ( window.FB );
