@@ -62,11 +62,7 @@ export default Ember.Service.extend({
                     resolve(response);
 
                 }
-                //} else if ( response.status === 'unkown' ) {
 
-                //} else {
-                //    reject(response);
-                //}
                 //user_website,user_about_me
             }, { scope: 'email,public_profile' });
 
@@ -79,8 +75,8 @@ export default Ember.Service.extend({
     me() {
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
-            //website,bio
-            window.FB.api('/me', { fields: 'last_name,first_name,email' }, function(response) {
+
+            window.FB.api('/me', { fields: 'last_name,first_name,email,about,cover,gender,hometown,is_verified,link,locale,location,quotes,website,bio' }, function(response) {
                 if ( !response || response.error ) {
                     reject(response);
                 } else {
