@@ -4,6 +4,7 @@ export default Ember.Service.extend({
 
     status: null,
     authenticated: null,
+    id: null,
 
     // INIT --------------------------------------------------------------------
 
@@ -16,14 +17,17 @@ export default Ember.Service.extend({
         var config = Ember.getOwner(this)._lookupFactory('config:environment');
 
         if ( config.FACEBOOK ) {
+
             if ( config.FACEBOOK.appId ) {
+
                 window.fbAsyncInit = function() {
+
                     if ( config.FACEBOOK.appId ) {
 
                         window.FB.init({
                             appId: config.FACEBOOK.appId,
                             xfbml: true,
-                                version: 'v2.5'
+                            version: 'v2.8'
                         });
 
                         window.FB.getLoginStatus(function(response) {
@@ -31,16 +35,23 @@ export default Ember.Service.extend({
                             self.set('status', response.status);
 
                             if ( response.status === 'connected' ) {
+
                                 self.set('authenticated', true);
                                 self.set('password', response.authResponse.userID);
+                                self.set('id', response.authResponse.userID);
+
                             } else {
+
                                 self.set('authenticated', false);
+
                             }
 
                         });
 
                     }
+
                 };
+
             }
         }
 
@@ -48,7 +59,15 @@ export default Ember.Service.extend({
 
     // LOGIN -------------------------------------------------------------------
 
-    login() {
+    login(scope) {
+
+        var defaultScope = 'email,public_profile';
+
+        if ( !scope ) {
+            scope = defaultScope;
+        } else {
+            scope = defaultScope + ',' + scope;
+        }
 
         var self = this;
 
@@ -58,13 +77,24 @@ export default Ember.Service.extend({
 
                 if ( response.authResponse ) {
 
-                    self.set('password', response.authResponse.userID);
-                    resolve(response);
+                    if ( response.authResponse.grantedScopes.split(',').length >= scope.split(',').length ) {
+
+                        self.set('password', response.authResponse.userID);
+                        self.set('id', response.authResponse.userID);
+
+                        resolve(response);
+
+                    } else {
+                        reject({ error: 'scope'} );
+                    }
+
+                } else {
+
+                    reject();
 
                 }
 
-                //user_website,user_about_me
-            }, { scope: 'email,public_profile' });
+            }, { scope: scope, return_scopes: true });
 
         });
 
@@ -72,11 +102,125 @@ export default Ember.Service.extend({
 
     // ME ----------------------------------------------------------------------
 
-    me() {
+    me(fields) {
+
+        var defaultFields = 'last_name,first_name,about,email,cover,gender,hometown,is_verified,link,locale,location,quotes,verified,picture.type(large)';
+
+        if ( !fields ) {
+            fields = defaultFields;
+        } else {
+            fields = defaultFields + ',' + fields;
+        }
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
 
-            window.FB.api('/me', { fields: 'last_name,first_name,email,about,cover,gender,hometown,is_verified,link,locale,location,quotes,website,bio' }, function(response) {
+            window.FB.api('/me', { fields: fields }, function(response) {
+                if ( !response || response.error ) {
+                    reject(response);
+                } else {
+                    resolve(response);
+                }
+           });
+
+        });
+
+    },
+
+    // PICTURE -----------------------------------------------------------------
+
+    picture() {
+
+        var self = this;
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+
+            window.FB.api(self.get('id')+'/picture?redirect=false&type=large', function(response) {
+                if ( !response || response.error || !response.data ) {
+                    reject(response);
+                } else {
+                    resolve(response.data);
+                }
+           });
+
+        });
+
+    },
+
+    // PHOTOS ------------------------------------------------------------------
+    /*
+    photos(fields, type) {
+
+        var self = this;
+
+        var defaultFields = 'images,name,can_delete,from,place';
+
+        if ( !fields ) {
+            fields = defaultFields;
+        } else {
+            fields = defaultFields + ',' + fields;
+        }
+
+        if ( !type ) {
+            type = "profile";
+        }
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+
+            window.FB.api(self.get('id')+'/photos', { fields: fields, type: type }, function(response) {
+
+                if ( !response || response.error || !response.data ) {
+                    reject(response);
+                } else {
+                    resolve(response.data);
+                }
+
+           });
+
+        });
+
+    },
+    */
+    // PAGES --------------------------------------------------------------------
+
+    pages(fields) {
+
+        var defaultFields = "access_token,name,username,picture.type(square)";
+
+        if ( !fields ) {
+            fields = defaultFields;
+        } else {
+            fields = defaultFields + ',' + fields;
+        }
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+
+            window.FB.api('me/accounts', { fields: fields, type: "page" }, function(response) {
+                if ( !response || response.error || !response.data ) {
+                    reject(response);
+                } else {
+                    resolve(response.data);
+                }
+           });
+
+        });
+
+    },
+
+    page(fields) {
+
+        var self = this;
+
+        var defaultFields = 'name,username,website,fan_count,link,about,birthday,category,company_overview,current_location,picture.type(large),contact_address,store_location_descriptor,description,cover,emails,founded,general_info,personal_info,phone,mission,is_community_page,is_unclaimed,is_published,is_verified';
+
+        if ( !fields ) {
+            fields = defaultFields;
+        } else {
+            fields = defaultFields + ',' + fields;
+        }
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+
+            window.FB.api(self.get('id'), { fields: fields }, function(response) {
                 if ( !response || response.error ) {
                     reject(response);
                 } else {
@@ -91,8 +235,11 @@ export default Ember.Service.extend({
     // FEED --------------------------------------------------------------------
 
     share(quote, domain) {
+
         var self = this;
+
         return new Ember.RSVP.Promise(function(resolve, reject) {
+
             if ( self.exist() ) {
 
                 window.FB.ui({
@@ -110,7 +257,9 @@ export default Ember.Service.extend({
             } else {
                 resolve();
             }
+
         });
+
     },
 
     // -------------------------------------------------------------------------
