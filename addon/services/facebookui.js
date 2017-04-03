@@ -85,12 +85,12 @@ export default Ember.Service.extend({
                         resolve(response);
 
                     } else {
-                        reject({ error: 'scope'} );
+                        reject({ error: 'scope'});
                     }
 
                 } else {
-
-                    reject();
+                    
+                    reject({ error: 'cancel'});
 
                 }
 
