@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import config from 'ember-get-config';
 
 export default Ember.Service.extend({
 
@@ -13,8 +14,6 @@ export default Ember.Service.extend({
         this._super();
 
         var self = this;
-
-        var config = Ember.getOwner(this)._lookupFactory('config:environment');
 
         if ( config.FACEBOOK ) {
 
@@ -89,7 +88,7 @@ export default Ember.Service.extend({
                     }
 
                 } else {
-                    
+
                     reject({ error: 'cancel'});
 
                 }
