@@ -3,6 +3,8 @@ import config from 'ember-get-config';
 
 export default Ember.Service.extend({
 
+    fastboot: Ember.inject.service(),
+
     status: null,
     authenticated: null,
     id: null,
@@ -15,45 +17,53 @@ export default Ember.Service.extend({
 
         var self = this;
 
-        if ( config.FACEBOOK ) {
+        if ( this.shouldinit() ) {
 
-            if ( config.FACEBOOK.appId ) {
+            if ( config.FACEBOOK ) {
 
-                window.fbAsyncInit = function() {
+                if ( config.FACEBOOK.appId ) {
 
-                    if ( config.FACEBOOK.appId ) {
+                    window.fbAsyncInit = function() {
 
-                        window.FB.init({
-                            appId: config.FACEBOOK.appId,
-                            xfbml: true,
-                            version: 'v2.8'
-                        });
+                        if ( config.FACEBOOK.appId ) {
 
-                        window.FB.getLoginStatus(function(response) {
+                            window.FB.init({
+                                appId: config.FACEBOOK.appId,
+                                xfbml: true,
+                                version: 'v2.8'
+                            });
 
-                            self.set('status', response.status);
+                            window.FB.getLoginStatus(function(response) {
 
-                            if ( response.status === 'connected' ) {
+                                self.set('status', response.status);
 
-                                self.set('authenticated', true);
-                                self.set('password', response.authResponse.userID);
-                                self.set('id', response.authResponse.userID);
+                                if ( response.status === 'connected' ) {
 
-                            } else {
+                                    self.set('authenticated', true);
+                                    self.set('password', response.authResponse.userID);
+                                    self.set('id', response.authResponse.userID);
 
-                                self.set('authenticated', false);
+                                } else {
 
-                            }
+                                    self.set('authenticated', false);
 
-                        });
+                                }
 
-                    }
+                            });
 
-                };
+                        }
 
+                    };
+
+                }
             }
+
         }
 
+    },
+
+    shouldinit() {
+        return ( this.get('fastboot.isFastBoot') === false );
     },
 
     // LOGIN -------------------------------------------------------------------
