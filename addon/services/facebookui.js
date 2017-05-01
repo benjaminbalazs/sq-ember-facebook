@@ -23,35 +23,33 @@ export default Ember.Service.extend({
 
                 if ( config.FACEBOOK.appId ) {
 
+                    this.script(document, 'script', 'facebook-jssdk');
+
                     window.fbAsyncInit = function() {
 
-                        if ( config.FACEBOOK.appId ) {
+                        window.FB.init({
+                            appId: config.FACEBOOK.appId,
+                            xfbml: true,
+                            version: 'v2.8'
+                        });
 
-                            window.FB.init({
-                                appId: config.FACEBOOK.appId,
-                                xfbml: true,
-                                version: 'v2.8'
-                            });
+                        window.FB.getLoginStatus(function(response) {
 
-                            window.FB.getLoginStatus(function(response) {
+                            self.set('status', response.status);
 
-                                self.set('status', response.status);
+                            if ( response.status === 'connected' ) {
 
-                                if ( response.status === 'connected' ) {
+                                self.set('authenticated', true);
+                                self.set('password', response.authResponse.userID);
+                                self.set('id', response.authResponse.userID);
 
-                                    self.set('authenticated', true);
-                                    self.set('password', response.authResponse.userID);
-                                    self.set('id', response.authResponse.userID);
+                            } else {
 
-                                } else {
+                                self.set('authenticated', false);
 
-                                    self.set('authenticated', false);
+                            }
 
-                                }
-
-                            });
-
-                        }
+                        });
 
                     };
 
@@ -62,8 +60,18 @@ export default Ember.Service.extend({
 
     },
 
+    script(d, s, id) {
+
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s);
+        js.id = id;js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+
+    },
+
     shouldinit() {
-        return ( this.get('fastboot.isFastBoot') === false );
+        return ( this.get('fastboot.isFastBoot') !== true );
     },
 
     // LOGIN -------------------------------------------------------------------
@@ -247,8 +255,6 @@ export default Ember.Service.extend({
 
         var self = this;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-
             if ( self.exist() ) {
 
                 window.FB.ui({
@@ -257,24 +263,26 @@ export default Ember.Service.extend({
                   quote: quote,
                 }, function(response) {
                     if ( response ) {
-                        resolve();
+
                     } else {
-                        reject();
+
                     }
 
                 });
             } else {
-                resolve();
-            }
 
-        });
+            }
 
     },
 
     // -------------------------------------------------------------------------
 
     exist() {
-        return ( window.FB );
+        if ( window.FB ) {
+            return true;
+        } else {
+            return false;
+        }
     },
 
 
