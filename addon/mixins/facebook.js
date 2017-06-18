@@ -73,7 +73,7 @@ export default Ember.Mixin.create({
 
             // ADDITIONAL INFO
 
-            if ( data.about ) { model.set('about', data.about); }
+            if ( data.about ) { model.set('about', self.truncateString(data.about)); }
 
             if ( data.founded ) { model.set('founded', data.founded); }
 
@@ -83,7 +83,7 @@ export default Ember.Mixin.create({
 
             if ( data.birthday ) { model.set('birthday', data.birthday); }
 
-            if ( data.company_overview ) { model.set('company_overview', data.company_overview); }
+            if ( data.company_overview ) { model.set('company_overview', self.truncateString(data.company_overview)); }
 
             if ( data.current_location ) { model.set('current_location', data.current_location); }
 
@@ -91,15 +91,15 @@ export default Ember.Mixin.create({
 
             if ( data.store_location_descriptor ) { model.set('store_location_descriptor', data.store_location_descriptor); }
 
-            if ( data.description ) { model.set('description', data.description); }
+            if ( data.description ) { model.set('description', self.truncateString(data.description)); }
 
-            if ( data.general_info ) { model.set('general_info', data.general_info); }
+            if ( data.general_info ) { model.set('general_info', self.truncateString(data.general_info)); }
 
-            if ( data.personal_info ) { model.set('personal_info', data.personal_info); }
+            if ( data.personal_info ) { model.set('personal_info', self.truncateString(data.personal_info)); }
 
             if ( data.phone ) { model.set('phone', data.phone); }
 
-            if ( data.personal_info ) { model.set('personal_info', data.personal_info); }
+            if ( data.personal_info ) { model.set('personal_info', self.truncateString(data.personal_info)); }
 
             // IMAGES
 
@@ -165,7 +165,7 @@ export default Ember.Mixin.create({
 
             // EXTRA INFOS -------------------------------------------------
 
-            if ( data.about ) { model.set('about', data.about); }
+            if ( data.about ) { model.set('about', self.truncateString(data.about)); }
 
             if ( data.age_range ) { model.set('age_range', data.age_range); }
 
@@ -214,5 +214,16 @@ export default Ember.Mixin.create({
         });
 
     },
+
+    truncateString(string, max) {
+        if ( !max ) {
+            max = 1024;
+        }
+        if ( string.length > max ) {
+            return string.substring(0, max-5) + "...";
+        } else {
+            return string;
+        }
+    }
 
 });
