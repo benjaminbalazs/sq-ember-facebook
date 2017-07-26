@@ -71,55 +71,71 @@ export default Ember.Mixin.create({
 
             model.set('user', user);
 
-            // ADDITIONAL INFO
-
-            if ( data.about ) { model.set('about', self.truncateString(data.about)); }
-
-            if ( data.founded ) { model.set('founded', data.founded); }
-
-            if ( data.category ) { model.set('category', data.category); }
-
-            if ( data.mission ) { model.set('mission', data.mission); }
-
-            if ( data.birthday ) { model.set('birthday', data.birthday); }
-
-            if ( data.company_overview ) { model.set('company_overview', self.truncateString(data.company_overview)); }
-
-            if ( data.current_location ) { model.set('current_location', data.current_location); }
-
-            if ( data.contact_address ) { model.set('contact_address', data.contact_address); }
-
-            if ( data.store_location_descriptor ) { model.set('store_location_descriptor', data.store_location_descriptor); }
-
-            if ( data.description ) { model.set('description', self.truncateString(data.description)); }
-
-            if ( data.general_info ) { model.set('general_info', self.truncateString(data.general_info)); }
-
-            if ( data.personal_info ) { model.set('personal_info', self.truncateString(data.personal_info)); }
-
-            if ( data.phone ) { model.set('phone', data.phone); }
-
-            if ( data.personal_info ) { model.set('personal_info', self.truncateString(data.personal_info)); }
-
-            // IMAGES
-
-            if ( data.picture ) {
-                if ( data.picture.data ) {
-                    if ( data.picture.data.url ) {
-                        model.set('image',  data.picture.data.url);
-                    }
-                }
-            }
-
-            if ( data.cover ) {
-                if ( data.cover.source ) {
-                    model.set('cover_image', data.cover.source);
-                }
-            }
+            model = self.fillFacebookPage(model, data);
 
             resolve(model);
 
         });
+
+    },
+
+    updateFacebookPage(model, data) {
+
+        model = this.fillFacebookPage(model, data);
+
+        return model.save();
+
+    },
+
+    fillFacebookPage(model, data) {
+
+        // ADDITIONAL INFO
+
+        if ( data.about ) { model.set('about', this.truncateString(data.about)); }
+
+        if ( data.founded ) { model.set('founded', data.founded); }
+
+        if ( data.category ) { model.set('category', data.category); }
+
+        if ( data.mission ) { model.set('mission', data.mission); }
+
+        if ( data.birthday ) { model.set('birthday', data.birthday); }
+
+        if ( data.company_overview ) { model.set('company_overview', this.truncateString(data.company_overview)); }
+
+        if ( data.current_location ) { model.set('current_location', data.current_location); }
+
+        if ( data.contact_address ) { model.set('contact_address', data.contact_address); }
+
+        if ( data.store_location_descriptor ) { model.set('store_location_descriptor', data.store_location_descriptor); }
+
+        if ( data.description ) { model.set('description', this.truncateString(data.description)); }
+
+        if ( data.general_info ) { model.set('general_info', this.truncateString(data.general_info)); }
+
+        if ( data.personal_info ) { model.set('personal_info', this.truncateString(data.personal_info)); }
+
+        if ( data.phone ) { model.set('phone', data.phone); }
+
+        if ( data.personal_info ) { model.set('personal_info', this.truncateString(data.personal_info)); }
+
+        // IMAGES
+
+        if ( data.picture ) {
+            if ( data.picture.data ) {
+                if ( data.picture.data.url ) {
+                    model.set('image',  data.picture.data.url);
+                }
+            }
+        }
+
+        if ( data.cover ) {
+            if ( data.cover.source ) {
+                model.set('cover_image', data.cover.source);
+            }
+        }
+
+        return model;
 
     },
 
@@ -143,7 +159,7 @@ export default Ember.Mixin.create({
 
         var self = this;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
+        return new Ember.RSVP.Promise(function(resolve) {
 
             var model = self.get('store').createRecord('facebook-user', {
 
@@ -152,52 +168,75 @@ export default Ember.Mixin.create({
                 signed_request: authResponse.signedRequest,
                 expires_in: authResponse.expiresIn,
 
-
             });
 
-            // MANDATORY FIELDS --------------------------------------------
-
-            if ( data.email ) { model.set('email', data.email); } else { reject({ error: 'email'}); }
-
-            if ( data.first_name ) { model.set('first_name', data.first_name); } else { reject({ error: 'first_name'}); }
-
-            if ( data.last_name ) { model.set('last_name', data.last_name); } else { reject({ error: 'last_name'}); }
-
-            // EXTRA INFOS -------------------------------------------------
-
-            if ( data.about ) { model.set('about', self.truncateString(data.about)); }
-
-            if ( data.age_range ) { model.set('age_range', data.age_range); }
-
-            if ( data.website ) { model.set('website', data.website); }
-
-            if ( data.gender ) { model.set('gender', data.gender); }
-
-            if ( data.locale ) { model.set('locale', data.locale); }
-
-            if ( data.link ) { model.set('link', data.link); }
-
-            if ( data.verified ) { model.set('verified', data.verified); }
-
-            // IMAGES ------------------------------------------------------
-
-            if ( data.cover ) {
-                if ( data.cover.source ) {
-                    model.set('cover_image', data.cover.source);
-                }
-            }
-
-            if ( data.picture ) {
-                if ( data.picture.data ) {
-                    if ( data.picture.data.url ) {
-                        model.set('image',  data.picture.data.url);
-                    }
-                }
-            }
+            model = self.fillFacebookUser(model, data);
 
             resolve(model);
 
         });
+
+    },
+
+    updateFacebookUser(model, data, authResponse) {
+        
+        model = this.fillFacebookUser(model, data, authResponse);
+
+        return model.save();
+
+    },
+
+    fillFacebookUser(model, data, authResponse) {
+
+        // MANDATORY FIELDS --------------------------------------------
+
+        if ( data.email ) { model.set('email', data.email); }
+
+        if ( data.first_name ) { model.set('first_name', data.first_name); }
+
+        if ( data.last_name ) { model.set('last_name', data.last_name); }
+
+        // EXTRA INFOS -------------------------------------------------
+
+        if ( data.about ) { model.set('about', this.truncateString(data.about)); }
+
+        if ( data.age_range ) { model.set('age_range', data.age_range); }
+
+        if ( data.website ) { model.set('website', data.website); }
+
+        if ( data.gender ) { model.set('gender', data.gender); }
+
+        if ( data.locale ) { model.set('locale', data.locale); }
+
+        if ( data.link ) { model.set('link', data.link); }
+
+        if ( data.verified ) { model.set('verified', data.verified); }
+
+        // IMAGES ------------------------------------------------------
+
+        if ( data.cover ) {
+            if ( data.cover.source ) {
+                model.set('cover_image', data.cover.source);
+            }
+        }
+
+        if ( data.picture ) {
+            if ( data.picture.data ) {
+                if ( data.picture.data.url ) {
+                    model.set('image',  data.picture.data.url);
+                }
+            }
+        }
+
+        //
+
+        if ( authResponse ) {
+            model.set('access_token', authResponse.accessToken);
+            model.set('signed_request', authResponse.signedRequest);
+            model.set('expires_in', authResponse.expiresIn);
+        }
+
+        return model;
 
     },
 
