@@ -64,8 +64,8 @@ export default Ember.Service.extend({
 
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) {return;}
-        js = d.createElement(s);
-        js.id = id;js.src = "//connect.facebook.net/en_US/sdk.js";
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
         fjs.parentNode.insertBefore(js, fjs);
 
     },
@@ -121,7 +121,7 @@ export default Ember.Service.extend({
 
     me(fields) {
 
-        var defaultFields = 'last_name,first_name,about,email,cover,gender,hometown,is_verified,link,locale,location,quotes,verified,picture.type(large)';
+        var defaultFields = 'email,last_name,first_name,about,cover,gender,hometown,is_verified,link,locale,location,quotes,verified,picture.type(large)';
 
         if ( !fields ) {
             fields = defaultFields;
@@ -132,11 +132,13 @@ export default Ember.Service.extend({
         return new Ember.RSVP.Promise(function(resolve, reject) {
 
             window.FB.api('/me', { fields: fields }, function(response) {
+
                 if ( !response || response.error ) {
                     reject(response);
                 } else {
                     resolve(response);
                 }
+                
            });
 
         });
