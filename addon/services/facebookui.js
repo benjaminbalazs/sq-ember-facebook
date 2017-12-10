@@ -92,7 +92,7 @@ export default Ember.Service.extend({
 
             window.FB.login(function(response) {
 
-                if ( response.authResponse ) {
+                if ( response.authResponse && response.authResponse.grantedScopes ) {
 
                     if ( response.authResponse.grantedScopes.split(',').length >= scope.split(',').length ) {
 
@@ -138,7 +138,7 @@ export default Ember.Service.extend({
                 } else {
                     resolve(response);
                 }
-                
+
            });
 
         });
