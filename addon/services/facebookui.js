@@ -165,40 +165,6 @@ export default Ember.Service.extend({
 
     },
 
-    // PHOTOS ------------------------------------------------------------------
-    /*
-    photos(fields, type) {
-
-        var self = this;
-
-        var defaultFields = 'images,name,can_delete,from,place';
-
-        if ( !fields ) {
-            fields = defaultFields;
-        } else {
-            fields = defaultFields + ',' + fields;
-        }
-
-        if ( !type ) {
-            type = "profile";
-        }
-
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-
-            window.FB.api(self.get('id')+'/photos', { fields: fields, type: type }, function(response) {
-
-                if ( !response || response.error || !response.data ) {
-                    reject(response);
-                } else {
-                    resolve(response.data);
-                }
-
-           });
-
-        });
-
-    },
-    */
     // PAGES --------------------------------------------------------------------
 
     pages(fields) {

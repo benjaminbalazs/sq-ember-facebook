@@ -5,89 +5,29 @@ export default Ember.Mixin.create({
     facebookui: Ember.inject.service(),
     store: Ember.inject.service(),
 
-    /*
-    // PHOTO -------------------------------------------------------------------
-
-    createFacebookPhoto(data, user, page) {
-
-        var self = this;
-
-        return new Ember.RSVP.Promise(function(resolve) {
-
-            var model = self.get('store').createRecord('facebook-photo', {
-                facebook_id: data.id,
-                name: data.name,
-                link: data.link,
-                width: data.width,
-                height: data.height,
-                images: data.images,
-                from: data.from,
-            });
-
-            if ( user ) { model.set('user', user); }
-
-            if ( page ) { model.set('page', page); }
-
-            if ( data.picture ) {
-                if ( data.picture.url ) {
-                    model.set('image',  data.picture.url);
-                }
-            }
-
-            if ( data.place ) {
-                if ( data.place.location ) {
-                    model.set('location', location);
-                }
-            }
-
-            resolve(model);
-
-        });
-
-    },
-    */
-
     // PAGE --------------------------------------------------------------------
 
-    createFacebookPage(data, user) {
+    async createFacebookPage(data, user) {
 
-        var self = this;
+        const model = self.get('store').createRecord('facebook-page', {
 
-        return new Ember.RSVP.Promise(function(resolve) {
+            access_token: user.get('access_token'),
+            signed_request: user.get('signed_request'),
+            expires_in: user.get('expires_in'),
 
-            // BASICS
-
-            var model = self.get('store').createRecord('facebook-page', {
-                facebook_id: data.id,
-                name: data.name,
-                username: data.username,
-                link: data.link,
-                is_community_page: data.is_community_page,
-                is_unclaimed: data.is_unclaimed,
-                is_published: data.is_published,
-                is_verified: data.is_verified,
-                fan_count: data.fan_count,
-            });
-
-            model.set('user', user);
-
-            model = self.fillFacebookPage(model, data);
-
-            resolve(model);
+            facebook_id: data.id,
+            name: data.name,
+            username: data.username,
+            link: data.link,
+            is_community_page: data.is_community_page,
+            is_unclaimed: data.is_unclaimed,
+            is_published: data.is_published,
+            is_verified: data.is_verified,
+            fan_count: data.fan_count,
 
         });
 
-    },
-
-    updateFacebookPage(model, data) {
-
-        model = this.fillFacebookPage(model, data);
-
-        return model.save();
-
-    },
-
-    fillFacebookPage(model, data) {
+        model.set('user', user);
 
         // ADDITIONAL INFO
 
@@ -135,58 +75,26 @@ export default Ember.Mixin.create({
             }
         }
 
-        return model;
+        //
 
-    },
+        await model.save();
 
-    getFacebookPage(facebook_id) {
-
-        return this.get('store').query('facebook-page', { facebook_id: facebook_id }).then(function(list) {
-
-            return list.get('firstObject');
-
-        }).catch(function() {
-
-            return Ember.RSVP.Promise.resolve(null);
-
-        });
+        return Ember.RSVP.Promise.resolve(model);
 
     },
 
     // USER --------------------------------------------------------------------
 
-    createFacebookUser(authResponse, data) {
+    async createFacebookUser(authResponse, data) {
 
-        var self = this;
+        const model = this.get('store').createRecord('facebook-user', {
 
-        return new Ember.RSVP.Promise(function(resolve) {
-
-            var model = self.get('store').createRecord('facebook-user', {
-
-                access_token: authResponse.accessToken,
-                facebook_id: authResponse.userID,
-                signed_request: authResponse.signedRequest,
-                expires_in: authResponse.expiresIn,
-
-            });
-
-            model = self.fillFacebookUser(model, data);
-
-            resolve(model);
+            access_token: authResponse.accessToken,
+            facebook_id: authResponse.userID,
+            signed_request: authResponse.signedRequest,
+            expires_in: authResponse.expiresIn,
 
         });
-
-    },
-
-    updateFacebookUser(model, data, authResponse) {
-        
-        model = this.fillFacebookUser(model, data, authResponse);
-
-        return model.save();
-
-    },
-
-    fillFacebookUser(model, data, authResponse) {
 
         // MANDATORY FIELDS --------------------------------------------
 
@@ -230,34 +138,16 @@ export default Ember.Mixin.create({
 
         //
 
-        if ( authResponse ) {
-            model.set('access_token', authResponse.accessToken);
-            model.set('signed_request', authResponse.signedRequest);
-            model.set('expires_in', authResponse.expiresIn);
-        }
+        await model.save();
 
-        return model;
+        return Ember.RSVP.Promise.resolve(model);
 
     },
 
-    getFacebookUser(facebook_id) {
-
-        return this.get('store').query('facebook-user', { facebook_id: facebook_id }).then(function(list) {
-
-            return list.get('firstObject');
-
-        }).catch(function() {
-
-            return Ember.RSVP.Promise.resolve(null);
-
-        });
-
-    },
+    //
 
     truncateString(string, max) {
-        if ( !max ) {
-            max = 1024;
-        }
+        if ( !max ) { max = 1024; }
         if ( string.length > max ) {
             return string.substring(0, max-5) + "...";
         } else {
