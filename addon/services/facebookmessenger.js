@@ -10,14 +10,14 @@ export default Ember.Service.extend({
         this._super();
 
         if ( this.shouldinit() ) {
-        
+
             if ( config.FACEBOOK && config.FACEBOOK.appId ) {
 
-                this.script(document, 'script', 'Messenger');
+                //this.script(document, 'script', 'Messenger');
 
-                window.extAsyncInit = function() {
+                //window.extAsyncInit = function() {
 
-                };
+                //};
 
             }
 
