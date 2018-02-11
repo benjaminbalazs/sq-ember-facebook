@@ -29,8 +29,9 @@ export default Ember.Service.extend({
 
                         window.FB.init({
                             appId: config.FACEBOOK.appId,
+                            autoLogAppEvents : true,
                             xfbml: true,
-                            version: 'v2.8'
+                            version: 'v2.12'
                         });
 
                         window.FB.getLoginStatus(function(response) {
