@@ -71,7 +71,11 @@ export default Ember.Service.extend({
     },
 
     shouldinit() {
-        return ( this.get('fastboot.isFastBoot') !== true );
+        if ( this.get('fastboot.isFastBoot') !== true ) {
+            return true;
+        } else {
+            return false;
+        }
     },
 
     // LOGIN -------------------------------------------------------------------
