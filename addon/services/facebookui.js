@@ -83,7 +83,7 @@ export default Ember.Service.extend({
 
     login(scope) {
 
-        var defaultScope = 'email,public_profile,user_website';
+        var defaultScope = 'email,public_profile';
 
         if ( !scope ) {
             scope = defaultScope;
