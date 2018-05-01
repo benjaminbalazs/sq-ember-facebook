@@ -9,25 +9,27 @@ export default Ember.Mixin.create({
 
     async createFacebookPage(data, user) {
 
-        const model = self.get('store').createRecord('facebook-page', {
+        let model = this.get('store').peekAll('facebook-page').findBy('facebook_id', data.id);
 
-            access_token: user.get('access_token'),
-            signed_request: user.get('signed_request'),
-            expires_in: user.get('expires_in'),
+        if ( !model ) {
+            model = this.get('store').createRecord('facebook-page', {
+                facebook_id: data.id,
+                user: user,
+            });
+        }
 
-            facebook_id: data.id,
-            name: data.name,
-            username: data.username,
-            link: data.link,
-            is_community_page: data.is_community_page,
-            is_unclaimed: data.is_unclaimed,
-            is_published: data.is_published,
-            is_verified: data.is_verified,
-            fan_count: data.fan_count,
+        model.set('access_token', user.get('access_token'));
+        model.set('signed_request', user.get('signed_request'));
+        model.set('expires_in', user.get('expires_in'));
 
-        });
-
-        model.set('user', user);
+        model.set('name', data.name);
+        model.set('username', data.username);
+        model.set('link', data.link);
+        model.set('is_community_page', data.is_community_page);
+        model.set('is_unclaimed', data.is_unclaimed);
+        model.set('is_published', data.is_published);
+        model.set('is_verified', data.is_verified);
+        model.set('fan_count', data.fan_count);
 
         // ADDITIONAL INFO
 
@@ -79,7 +81,7 @@ export default Ember.Mixin.create({
 
         await model.save();
 
-        return Ember.RSVP.Promise.resolve(model);
+        return model;
 
     },
 
@@ -87,14 +89,18 @@ export default Ember.Mixin.create({
 
     async createFacebookUser(authResponse, data) {
 
-        const model = this.get('store').createRecord('facebook-user', {
+        let model = this.get('store').peekAll('facebook-user').findBy('facebook_id', authResponse.userID);
 
-            access_token: authResponse.accessToken,
-            facebook_id: authResponse.userID,
-            signed_request: authResponse.signedRequest,
-            expires_in: authResponse.expiresIn,
+        if ( !model ) {
+            model = this.get('store').createRecord('facebook-user', {
+                facebook_id: authResponse.userID,
+            });
+        }
 
-        });
+        model.set('access_token', authResponse.accessToken);
+        model.set('facebook_id', authResponse.userID);
+        model.set('signed_request', authResponse.signedRequest);
+        model.set('expires_in', authResponse.expiresIn);
 
         // MANDATORY FIELDS --------------------------------------------
 
@@ -140,7 +146,7 @@ export default Ember.Mixin.create({
 
         await model.save();
 
-        return Ember.RSVP.Promise.resolve(model);
+        return model;
 
     },
 

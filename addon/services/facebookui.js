@@ -22,7 +22,7 @@ export default Ember.Service.extend({
             if ( config.FACEBOOK ) {
 
                 if ( config.FACEBOOK.appId ) {
-
+                    
                     this.script(document, 'script', 'facebook-jssdk');
 
                     window.fbAsyncInit = function() {
