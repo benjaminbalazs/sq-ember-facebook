@@ -1,9 +1,10 @@
-import Ember from 'ember';
+import { Promise as EmberPromise } from 'rsvp';
+import Service, { inject as service } from '@ember/service';
 import config from 'ember-get-config';
 
-export default Ember.Service.extend({
+export default Service.extend({
 
-    fastboot: Ember.inject.service(),
+    fastboot: service(),
 
     status: null,
     authenticated: null,
@@ -93,7 +94,7 @@ export default Ember.Service.extend({
 
         var self = this;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
+        return new EmberPromise(function(resolve, reject) {
 
             window.FB.login(function(response) {
 
@@ -134,7 +135,7 @@ export default Ember.Service.extend({
             fields = defaultFields + ',' + fields;
         }
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
+        return new EmberPromise(function(resolve, reject) {
 
             window.FB.api('/me', { fields: fields }, function(response) {
 
@@ -156,7 +157,7 @@ export default Ember.Service.extend({
 
         var self = this;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
+        return new EmberPromise(function(resolve, reject) {
 
             window.FB.api(self.get('id')+'/picture?redirect=false&type=large', function(response) {
                 if ( !response || response.error || !response.data ) {
@@ -182,7 +183,7 @@ export default Ember.Service.extend({
             fields = defaultFields + ',' + fields;
         }
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
+        return new EmberPromise(function(resolve, reject) {
 
             window.FB.api('me/accounts', { fields: fields, type: "page" }, function(response) {
                 if ( !response || response.error || !response.data ) {
@@ -208,7 +209,7 @@ export default Ember.Service.extend({
             fields = defaultFields + ',' + fields;
         }
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
+        return new EmberPromise(function(resolve, reject) {
 
             window.FB.api(self.get('id'), { fields: fields }, function(response) {
                 if ( !response || response.error ) {
