@@ -5,57 +5,51 @@ import config from 'ember-get-config';
 export default Service.extend({
 
     fastboot: service(),
-
     status: null,
     authenticated: null,
     id: null,
 
     // INIT --------------------------------------------------------------------
 
-    init() {
-
-        this._super();
-
-        var self = this;
+    initiate() {
 
         if ( this.shouldinit() ) {
 
-            if ( config.FACEBOOK ) {
+            const self = this;
+            
+            if ( config.FACEBOOK && config.FACEBOOK.appId ) {
 
-                if ( config.FACEBOOK.appId ) {
-                    
-                    this.script(document, 'script', 'facebook-jssdk');
+                this.script(document, 'script', 'facebook-jssdk');
 
-                    window.fbAsyncInit = function() {
+                window.fbAsyncInit = function() {
 
-                        window.FB.init({
-                            appId: config.FACEBOOK.appId,
-                            autoLogAppEvents : true,
-                            xfbml: true,
-                            version: 'v2.12'
-                        });
+                    window.FB.init({
+                        appId: config.FACEBOOK.appId,
+                        autoLogAppEvents : true,
+                        xfbml: true,
+                        version: 'v2.12'
+                    });
 
-                        window.FB.getLoginStatus(function(response) {
+                    window.FB.getLoginStatus(function(response) {
 
-                            self.set('status', response.status);
+                        self.set('status', response.status);
 
-                            if ( response.status === 'connected' ) {
+                        if ( response.status === 'connected' ) {
 
-                                self.set('authenticated', true);
-                                self.set('password', response.authResponse.userID);
-                                self.set('id', response.authResponse.userID);
+                            self.set('authenticated', true);
+                            self.set('password', response.authResponse.userID);
+                            self.set('id', response.authResponse.userID);
 
-                            } else {
+                        } else {
 
-                                self.set('authenticated', false);
+                            self.set('authenticated', false);
 
-                            }
+                        }
 
-                        });
+                    });
 
-                    };
+                };
 
-                }
             }
 
         }

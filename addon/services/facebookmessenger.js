@@ -5,19 +5,11 @@ export default Service.extend({
 
     fastboot: service(),
 
-    init() {
-
-        this._super();
+    initiate() {
 
         if ( this.shouldinit() ) {
 
             if ( config.FACEBOOK && config.FACEBOOK.appId ) {
-
-                //this.script(document, 'script', 'Messenger');
-
-                //window.extAsyncInit = function() {
-
-                //};
 
             }
 
