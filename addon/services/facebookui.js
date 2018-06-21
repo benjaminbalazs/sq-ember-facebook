@@ -16,7 +16,7 @@ export default Service.extend({
         if ( this.shouldinit() ) {
 
             const self = this;
-            
+
             if ( config.FACEBOOK && config.FACEBOOK.appId ) {
 
                 this.script(document, 'script', 'facebook-jssdk');
@@ -223,23 +223,21 @@ export default Service.extend({
 
         var self = this;
 
-            if ( self.exist() ) {
+        return new EmberPromise(function(resolve, reject) {
 
-                window.FB.ui({
-                  method: 'share',
-                  href: domain,
-                  quote: quote,
-                }, function(response) {
-                    if ( response ) {
+            window.FB.ui({
+              method: 'share',
+              href: domain,
+              quote: quote,
+            }, function(response) {
+                if ( response ) {
+                    resolve();
+                } else {
 
-                    } else {
+                }
+            });
 
-                    }
-
-                });
-            } else {
-
-            }
+        });
 
     },
 
